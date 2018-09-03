@@ -1,6 +1,7 @@
 package com.petnagy.koredux;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,13 +35,41 @@ public class StoreTest {
 
     private TestState initState;
 
+    @Mock
+    private StoreSubscriber<TestState> mockSubscriber;
+
     @Before
     public void setUp() {
         initState = new TestState();
     }
 
     @Test
-    public void testReducerInvokedAfterMiddlewareCallNext() {
+    public void testGetValueGiveBackState() {
+        //GIVEN
+        underTest = new Store<>(mockReducer, Collections.<Middleware<TestState>>emptyList(), initState);
+
+        //WHEN
+        TestState stateFromStore = underTest.getState();
+
+        //THEN
+        Assert.assertEquals(initState, stateFromStore);
+    }
+
+    @Test
+    public void testDispatchCallReducerIfNoListOfMiddleware() {
+        //GIVEN
+        TestAction action = new TestAction();
+        underTest = new Store<>(mockReducer, Collections.<Middleware<TestState>>emptyList(), initState);
+
+        //WHEN
+        underTest.dispatch(action);
+
+        //THEN
+        Mockito.verify(mockReducer).invoke(action, initState);
+    }
+
+    @Test
+    public void testDispatchCallReducerIfThereIsAnyMiddleware() {
         //GIVEN
         TestAction action = new TestAction();
         Middleware<TestState> middleware = new Middleware<TestState>() {
@@ -199,15 +228,41 @@ public class StoreTest {
     }
 
     @Test
-    public void testReducerInvokedIfNoMiddleware() {
+    public void testStoreCallbackToSubscriber() {
         //GIVEN
         TestAction action = new TestAction();
         underTest = new Store<>(mockReducer, Collections.<Middleware<TestState>>emptyList(), initState);
+        underTest.subscribe(mockSubscriber);
 
         //WHEN
         underTest.dispatch(action);
 
         //THEN
         Mockito.verify(mockReducer).invoke(action, initState);
+        Mockito.verify(mockSubscriber).newState(initState);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testStoreSubscribeCannotBeNull() {
+        //GIVEN
+        underTest = new Store<>(mockReducer, Collections.<Middleware<TestState>>emptyList(), initState);
+
+        //WHEN
+        underTest.subscribe(null);
+
+        //THEN
+        //Exception
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testStoreUnSubscribeCannotBeNull() {
+        //GIVEN
+        underTest = new Store<>(mockReducer, Collections.<Middleware<TestState>>emptyList(), initState);
+
+        //WHEN
+        underTest.unsubscribe(null);
+
+        //THEN
+        //Exception
     }
 }
