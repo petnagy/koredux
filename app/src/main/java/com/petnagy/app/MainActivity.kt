@@ -27,8 +27,8 @@ class MainActivity : DaggerAppCompatActivity(), StoreSubscriber<AppState> {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         store.subscribe(this)
     }
 
