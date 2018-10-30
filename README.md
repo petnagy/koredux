@@ -27,7 +27,7 @@ buildscript {
 and add this dependency:
 
 ```
-compile 'com.petnagy.koredux:koredux:0.1.0
+compile 'com.petnagy.koredux:koredux:0.1.1
 ```
 # Components
 
