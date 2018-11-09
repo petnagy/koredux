@@ -91,7 +91,7 @@ class MyMiddleware : Middleware<AppState> {
         next.dispatch(action)
     }
     
-    private fun queryLatestRate(store: Store<AppState>) {
+    private fun doSomethingLong(store: Store<AppState>) {
         // We can run something in the background thread or do something long operation...
         Single.just(true)
             .subscribeOn(Schedulers.io())
